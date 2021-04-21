@@ -325,12 +325,12 @@ void Debugger::GetVariable(Variable* variable, lua_State* L, int index, int dept
 			tableSize++;
 		}
 
-		if (lua_getmetatable(L, index)) {
+		if (depth > 1 && lua_getmetatable(L, index)) {
 			// metatable
 			auto* metatable = new Variable;
 			metatable->name = "metatable";
 			metatable->nameType = LUA_TSTRING;
-			GetVariable(metatable, L, -1, 2);
+			GetVariable(metatable, L, -1, 1);
 			variable->children.push_back(metatable);
 
 			// __index
@@ -338,7 +338,7 @@ void Debugger::GetVariable(Variable* variable, lua_State* L, int index, int dept
 				lua_getfield(L, -1, "__index");
 				if (!lua_isnil(L, -1)) {
 					Variable v;
-					GetVariable(&v, L, -1, 2);
+					GetVariable(&v, L, -1, 1);
 					if (depth > 1) {
 						for (auto* child : v.children) {
 							variable->children.push_back(child->Clone());
