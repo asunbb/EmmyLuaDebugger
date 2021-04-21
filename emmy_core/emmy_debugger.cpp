@@ -325,6 +325,7 @@ void Debugger::GetVariable(Variable* variable, lua_State* L, int index, int dept
 			tableSize++;
 		}
 
+		// table 的元表信息可以挂在于其子视图中，默认情况下(depth==1)不需要展开
 		if (depth > 1 && lua_getmetatable(L, index)) {
 			// metatable
 			auto* metatable = new Variable;
@@ -339,12 +340,6 @@ void Debugger::GetVariable(Variable* variable, lua_State* L, int index, int dept
 				if (!lua_isnil(L, -1)) {
 					Variable v;
 					GetVariable(&v, L, -1, 1);
-					if (depth > 1) {
-						for (auto* child : v.children) {
-							variable->children.push_back(child->Clone());
-						}
-					}
-					tableSize += v.children.size();
 				}
 				lua_pop(L, 1);
 			}

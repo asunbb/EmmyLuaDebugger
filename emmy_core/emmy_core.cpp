@@ -137,7 +137,9 @@ LuaVersion luaVersion = LuaVersion::UNKNOWN;
 extern "C" {
 	bool install_emmy_core(struct lua_State* L) {
 #ifndef EMMY_USE_LUA_SOURCE
-		if (!EmmyFacade::Get()->SetupLuaAPI()) {
+		auto emmy = EmmyFacade::Get();
+		emmy->Reset();
+		if (!emmy->SetupLuaAPI()) {
 			return false;
 		}
 #endif
@@ -153,7 +155,7 @@ extern "C" {
 		luaL_newlibtable(L, lib);
 		luaL_setfuncs(L, lib, 0);
 
-		// 对lua解释器来讲他先pcall，再执行openlib,所以lua_getglobal _G并不靠谱
+		// 瀵筶ua瑙ｉ噴鍣ㄦ潵璁蹭粬鍏坧call锛屽啀鎵цopenlib,鎵�浠ua_getglobal _G骞朵笉闈犺氨
 		// _G.emmy_core
 		lua_pushglobaltable(L);
 		lua_pushstring(L, "emmy_core");

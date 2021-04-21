@@ -57,6 +57,7 @@ public:
 	void OnEvalResult(EvalContext* context);
 	void SendLog(LogType type, const char *fmt, ...);
 	void OnLuaStateGC(lua_State* L);
+	void Reset();
 private:
 	void OnInitReq(const rapidjson::Document& document);
 	void OnReadyReq(const rapidjson::Document& document);

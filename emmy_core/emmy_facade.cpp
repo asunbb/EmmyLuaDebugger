@@ -159,6 +159,11 @@ void EmmyFacade::Destroy() {
 		delete transporter;
 		transporter = nullptr;
 	}
+	states.clear();
+}
+
+void EmmyFacade::Reset() {
+	Destroy();
 }
 
 void EmmyFacade::OnReceiveMessage(const rapidjson::Document& document) {
