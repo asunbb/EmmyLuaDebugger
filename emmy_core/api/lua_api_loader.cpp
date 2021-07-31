@@ -56,7 +56,7 @@ void* LoadAPI(const char* name) {
     return handler;
 }
 #endif
-int LUA_REGISTRYINDEX = 0;
+
 int LUA_GLOBALSINDEX = 0;
 
 IMP_LUA_API(lua_gettop);
@@ -337,18 +337,6 @@ void* lua_newuserdata(lua_State* L, int size)
 	}
 }
 
-void lua_pushglobaltable(lua_State* L)
-{
-	if (luaVersion == LuaVersion::LUA_51)
-	{
-		lua_pushvalue(L, LUA_GLOBALSINDEX);
-	}
-	else
-	{
-		lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_GLOBALSINDEX);
-	}
-}
-
 extern "C" bool SetupLuaAPI()
 {
 	LOAD_LUA_API(lua_gettop);
@@ -414,26 +402,21 @@ extern "C" bool SetupLuaAPI()
 	if (e_lua_newuserdatauv)
 	{
 		luaVersion = LuaVersion::LUA_54;
-		LUA_REGISTRYINDEX = -1001000;
 		LUA_GLOBALSINDEX = 2;
 	}
 	else if (e_lua_rotate)
 	{
 		luaVersion = LuaVersion::LUA_53;
-		LUA_REGISTRYINDEX = -1001000;
 		LUA_GLOBALSINDEX = 2;
 	}
 	else if (e_lua_callk)
 	{
 		luaVersion = LuaVersion::LUA_52;
-		//todo
-		LUA_REGISTRYINDEX = -1001000;
 		LUA_GLOBALSINDEX = 2;
 	}
 	else
 	{
 		luaVersion = LuaVersion::LUA_51;
-		LUA_REGISTRYINDEX = -10000;
 		LUA_GLOBALSINDEX = -10002;
 	}
 	printf("[EMMY] version: %s, lua version: %d\n", EMMY_CORE_VERSION, luaVersion);

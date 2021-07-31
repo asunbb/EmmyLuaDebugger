@@ -27,7 +27,7 @@ int metaQuery(lua_State* L)
 	const int argN = lua_gettop(L);
 	auto* var = (Variable*)lua_touserdata(L, 1);
 	const int index = 2;
-	const int depth = lua_tonumber(L, 3);
+	const int depth = (int)lua_tonumber(L, 3);
 	bool queryHelper = false;
 	if (argN >= 4)
 	{
@@ -96,7 +96,7 @@ int metaNewIndex(lua_State* L)
 	}
 	else if (k == "valueType")
 	{
-		var->valueType = lua_tonumber(L, 3);
+		var->valueType = (int)lua_tonumber(L, 3);
 	}
 	else if (k == "valueTypeName")
 	{
@@ -186,15 +186,9 @@ int emmyHelperInit(lua_State* L)
 }
 
 // 1: table
-int luaopen_emmy_helper(lua_State* L)
+void luaopen_emmy_helper(lua_State* L)
 {
 	initialized = false;
-	// 对lua 解释器来说，他是先pcall,再openlibs,所以lua_getglobal 无法获得_G
-	lua_pushglobaltable(L);
-	lua_pushstring(L, "emmyHelperInit");
 	lua_pushcfunction(L, emmyHelperInit);
-	lua_rawset(L, -3);
-	lua_pop(L, 1);
-
-	return 0;
+	lua_setglobal(L, "emmyHelperInit");
 }

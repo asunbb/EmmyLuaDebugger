@@ -16,7 +16,7 @@
 #include "emmy_core.h"
 #include "emmy_facade.h"
 
-int luaopen_emmy_helper(lua_State* L);
+void luaopen_emmy_helper(lua_State* L);
 
 // emmy.tcpListen(host: string, port: int): bool
 int tcpListen(struct lua_State* L) {
@@ -24,7 +24,7 @@ int tcpListen(struct lua_State* L) {
 	std::string err;
 	const auto host = lua_tostring(L, 1);
 	luaL_checknumber(L, 2);
-	const auto port = lua_tointeger(L, 2);
+	const auto port = (int)lua_tointeger(L, 2);
 	const auto suc = EmmyFacade::Get()->TcpListen(L, host, port, err);
 	lua_pushboolean(L, suc);
 	if (suc) return 1;
@@ -38,7 +38,7 @@ int tcpConnect(lua_State* L) {
 	std::string err;
 	const auto host = lua_tostring(L, 1);
 	luaL_checknumber(L, 2);
-	const auto port = lua_tointeger(L, 2);
+	const auto port = (int)lua_tointeger(L, 2);
 	const auto suc = EmmyFacade::Get()->TcpConnect(L, host, port, err);
 	lua_pushboolean(L, suc);
 	if (suc) return 1;
@@ -81,7 +81,7 @@ int breakHere(lua_State* L) {
 int waitIDE(lua_State* L) {
 	int top = lua_gettop(L);
 	int timeout = 0;
-	if (top >= 1) timeout = luaL_checknumber(L, 1);
+	if (top >= 1) timeout = (int)luaL_checknumber(L, 1);
 	EmmyFacade::Get()->WaitIDE(false, timeout);
 	return 0;
 }
@@ -136,9 +136,9 @@ LuaVersion luaVersion = LuaVersion::UNKNOWN;
 
 extern "C" {
 	bool install_emmy_core(struct lua_State* L) {
-#ifndef EMMY_USE_LUA_SOURCE
 		auto emmy = EmmyFacade::Get();
 		emmy->Reset();
+#ifndef EMMY_USE_LUA_SOURCE
 		if (!emmy->SetupLuaAPI()) {
 			return false;
 		}
@@ -154,15 +154,8 @@ extern "C" {
 			return false;
 		luaL_newlibtable(L, lib);
 		luaL_setfuncs(L, lib, 0);
-
-		// 对lua解释器来讲他先pcall，再执行openlib,所以lua_getglobal _G并不靠谱
-		// _G.emmy_core
-		lua_pushglobaltable(L);
-		lua_pushstring(L, "emmy_core");
-		lua_pushvalue(L, -3);
-		lua_rawset(L, -3);
-		lua_pop(L, 1);
-		
+		lua_pushvalue(L, -1);
+		lua_setglobal(L, "emmy_core");
 		return 1;
 	}
 }
